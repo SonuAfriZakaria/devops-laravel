@@ -21,7 +21,7 @@ node {
             sshagent (credentials: ['ssh-prod']) {
                 sh 'mkdir -p ~/.ssh'
                 sh 'ssh-keyscan -H "$PROD_HOST" > ~/.ssh/known_hosts'
-                sh "rsync -rav --delete ./ ubuntu@$PROD_HOST:/home/ubuntu/prod/ --exclude=.env --exclude=storage --exclude=.git"
+                sh "rsync -rav --delete ./ ubuntu@$PROD_HOST:/home/atmin/prod/ --exclude=.env --exclude=storage --exclude=.git"
             }
         }
     }
