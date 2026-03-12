@@ -18,9 +18,9 @@ node {
             sshagent(credentials: ['ssh-prod']) {
                 sh '''
                 mkdir -p ~/.ssh
-                ssh-keyscan -H host.docker.internal >> ~/.ssh/known_hosts
+                ssh-keyscan -H 172.21.0.1 >> ~/.ssh/known_hosts
 
-                rsync -rav --delete ./ atmin@host.docker.internal:/home/atmin/prod/ \
+                rsync -rav --delete ./ atmin@172.21.0.1:/home/atmin/prod/ \
                 --exclude=.env \
                 --exclude=storage \
                 --exclude=.git
