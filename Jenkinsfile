@@ -20,7 +20,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image('ubuntu').inside('--entrypoint=""') {
+                    docker.image('ubuntu').inside('--user root') {
                         sh 'echo Running test stage...'
                     }
                 }
@@ -31,9 +31,6 @@ pipeline {
             steps {
                 sshagent(['ssh-prod']) {
                     sh '''
-                    mkdir -p $HOME/.ssh
-                    ssh-keyscan -H $PROD_HOST >> $HOME/.ssh/known_hosts
-
                     ssh -o StrictHostKeyChecking=no atmin@$PROD_HOST "
                         cd /home/atmin/devops-laravel &&
                         git pull origin main &&
