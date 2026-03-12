@@ -29,7 +29,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sshagent(['atmin']) {
+                sshagent(['ssh-prod']) {
                     sh """
                     mkdir -p /root/.ssh
                     ssh-keyscan -H ${PROD_HOST} >> /root/.ssh/known_hosts
