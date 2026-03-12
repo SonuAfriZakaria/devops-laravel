@@ -1,30 +1,48 @@
-node {
-    checkout scm
+pipeline {
+    agent any
 
-    stage("Build") {
-        docker.image('composer:2.6').inside('--entrypoint="" -u root') {
-            sh 'composer install --no-interaction --prefer-dist'
-        }
+    environment {
+        PROD_HOST = "172.21.19.121"
     }
 
-    stage("Test") {
-        docker.image('ubuntu').inside('--entrypoint="" -u root') {
-            sh 'echo "Running test stage..."'
+    stages {
+
+        stage('Build') {
+            steps {
+                script {
+                    docker.image('composer:2.6').inside('--user root') {
+                        sh 'composer install --no-interaction --prefer-dist'
+                    }
+                }
+            }
         }
-    }
 
-    stage("Deploy") {
-        docker.image('agung3wi/alpine-rsync:1.1').inside('--entrypoint="" -u root') {
-            sshagent(credentials: ['ssh-prod']) {
-                sh '''
-                mkdir -p ~/.ssh
-                ssh-keyscan -H 172.21.0.1 >> ~/.ssh/known_hosts
+        stage('Test') {
+            steps {
+                script {
+                    docker.image('ubuntu').inside('--user root') {
+                        sh 'echo Running test stage...'
+                    }
+                }
+            }
+        }
 
-                rsync -rav --delete ./ atmin@172.21.0.1:/home/atmin/prod/ \
-                --exclude=.env \
-                --exclude=storage \
-                --exclude=.git
-                '''
+        stage('Deploy') {
+            steps {
+                sshagent(['atmin']) {
+                    sh """
+                    mkdir -p /root/.ssh
+                    ssh-keyscan -H ${PROD_HOST} >> /root/.ssh/known_hosts
+
+                    rsync -avz --delete ./ atmin@${PROD_HOST}:/home/atmin/devops-laravel/
+
+                    ssh atmin@${PROD_HOST} '
+                        cd /home/atmin/devops-laravel &&
+                        docker compose down &&
+                        docker compose up -d --build
+                    '
+                    """
+                }
             }
         }
     }
