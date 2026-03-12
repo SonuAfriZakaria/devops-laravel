@@ -31,7 +31,7 @@ pipeline {
             steps {
                 sshagent(['ssh-prod']) {
                     sh """
-                    mkdir -p /root/.ssh
+                    mkdir -p ~/.ssh
                     ssh-keyscan -H ${PROD_HOST} >> /root/.ssh/known_hosts
 
                     rsync -avz --delete ./ atmin@${PROD_HOST}:/home/atmin/devops-laravel/
