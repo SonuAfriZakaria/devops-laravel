@@ -10,7 +10,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.image('composer:2.6').inside('--entrypoint=""') {
+                    docker.image('composer:2.6').inside('--user root') {
                         sh 'composer install --no-interaction --prefer-dist'
                     }
                 }
