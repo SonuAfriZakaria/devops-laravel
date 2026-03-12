@@ -1,12 +1,5 @@
 node {
-
-    environment {
-        PROD_HOST = "host.docker.internal"
-    }
-
-    stage("Checkout") {
-        checkout scm
-    }
+    checkout scm
 
     stage("Build") {
         docker.image('composer:2.6').inside('-u root') {
@@ -23,12 +16,9 @@ node {
     stage("Deploy") {
         docker.image('agung3wi/alpine-rsync:1.1').inside('-u root') {
             sshagent(credentials: ['ssh-prod']) {
-
                 sh '''
                 mkdir -p ~/.ssh
-
                 ssh-keyscan -H $PROD_HOST >> ~/.ssh/known_hosts
-
                 rsync -rav --delete ./ atmin@$PROD_HOST:/home/atmin/prod/ \
                 --exclude=.env \
                 --exclude=storage \
@@ -37,5 +27,4 @@ node {
             }
         }
     }
-
 }
