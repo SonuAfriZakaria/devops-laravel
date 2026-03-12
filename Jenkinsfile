@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PROD_HOST = "172.21.19.121"
+        PROD_HOST = "host.docker.internal"
     }
 
     stages {
@@ -26,16 +26,15 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy') {
-            steps {
-                sshagent(['ssh-prod']) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no atmin@$PROD_HOST "
-                        cd /home/atmin/devops-laravel &&
-                        git pull origin main &&
-                        php artisan migrate --force
-                    "
+		stage('Deploy') {
+    steps {
+        sshagent(['ssh-prod']) {
+            sh '''
+            ssh -o StrictHostKeyChecking=no atmin@$PROD_HOST "
+                cd /home/atmin/devops-laravel &&
+                git pull origin main &&
+                php artisan migrate --force
+            "
                     '''
                 }
             }
