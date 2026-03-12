@@ -30,28 +30,43 @@ pipeline {
             }
         }
 
-stage('Deploy') {
-    steps {
-        sshagent(['ssh-prod']) {
-            sh """
-            ssh -o StrictHostKeyChecking=no atmin@$PROD_HOST '
-                cd $PROJECT_PATH
-                git pull origin main
-                
-                sudo chown -R atmin:www-data storage bootstrap/cache
-                sudo chmod -R 775 storage bootstrap/cache
+        stage('Deploy') {
+            steps {
+                sshagent(['ssh-prod']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no atmin@$PROD_HOST '
+                        cd $PROJECT_PATH
 
-                php artisan migrate --force
-                php artisan config:cache
-                php artisan route:cache
+                        # Buat file log jika belum ada
+                        touch deploy.log
 
-                # Build & restart Docker containers
-                docker-compose down
-                docker-compose up -d --build
+                        # Aktifkan debug untuk menampilkan semua perintah
+                        set -x
 
-                echo "Laravel deployed and running at http://$PROD_HOST"
-            '
-            """
+                        # Jalankan semua perintah & simpan output ke log
+                        {
+                            echo "===== DEPLOY START: \$(date) ====="
+
+                            git pull origin main
+
+                            sudo chown -R atmin:www-data storage bootstrap/cache
+                            sudo chmod -R 775 storage bootstrap/cache
+
+                            php artisan migrate --force
+                            php artisan config:cache
+                            php artisan route:cache
+
+                            docker-compose down
+                            docker-compose up -d --build
+
+                            echo "Laravel deployed and running at http://$PROD_HOST"
+                            echo "===== DEPLOY END: \$(date) ====="
+                        } >> deploy.log 2>&1
+
+                        # Tampilkan isi log terakhir di console
+                        tail -n 20 deploy.log
+                    '
+                    """
                 }
             }
         }
