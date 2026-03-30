@@ -2,27 +2,27 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Install Dependencies') {
             steps {
-                git branch: 'main', url: 'https://github.com/user/repo.git'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'echo "Build berjalan..."'
+                sh '''
+                echo "Mulai install dependency..."
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                sh 'echo "Testing berjalan..."'
+                sh '''
+                echo "Testing berjalan..."
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'echo "Deploy berjalan..."'
+                sh '''
+                echo "Deploy berjalan..."
+                '''
             }
         }
     }
