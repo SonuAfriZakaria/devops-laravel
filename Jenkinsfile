@@ -1,13 +1,19 @@
 pipeline {
     agent any
-
     stages {
-        stage('Deploy to VPS') {
+        stage('Build') {
             steps {
-                sh '''
-                rm -rf /var/www/laravel-devops/*
-                cp -r ./* /var/www/laravel-devops/
-                '''
+                sh 'echo "Build stage - source code checked out"'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'echo "Test stage - running tests"'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh '/usr/local/bin/deploy-laravel.sh'
             }
         }
     }
