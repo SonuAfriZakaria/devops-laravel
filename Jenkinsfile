@@ -1,75 +1,29 @@
 pipeline {
     agent any
 
-    environment {
-        PROD_HOST = "host.docker.internal"  // ganti sesuai server prod-mu
-        PROJECT_PATH = "/home/atmin/devops-laravel"
-        LARAVEL_PORT = "8000"
-    }
-
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/user/repo.git'
+            }
+        }
 
         stage('Build') {
             steps {
-                script {
-                    // Install dependencies dengan Composer di Docker
-                    docker.image('composer:2.6').inside('--user root') {
-                        sh 'composer install --no-interaction --prefer-dist'
-                    }
-                }
+                sh 'echo "Build berjalan..."'
             }
         }
 
         stage('Test') {
             steps {
-                script {
-                    docker.image('ubuntu').inside('--user root') {
-                        sh 'echo Running test stage...'
-                    }
-                }
+                sh 'echo "Testing berjalan..."'
             }
         }
 
         stage('Deploy') {
             steps {
-                sshagent(['ssh-prod']) {
-                    sh """
-                    ssh -o StrictHostKeyChecking=no atmin@$PROD_HOST '
-                        cd $PROJECT_PATH
-
-                        # Buat file log jika belum ada
-                        touch deploy.log
-
-                        # Aktifkan debug untuk menampilkan semua perintah
-                        set -x
-
-                        # Jalankan semua perintah & simpan output ke log
-                        {
-                            echo "===== DEPLOY START: \$(date) ====="
-
-                            git pull origin main
-
-                            sudo chown -R atmin:www-data storage bootstrap/cache
-                            sudo chmod -R 775 storage bootstrap/cache
-
-                            php artisan migrate --force
-                            php artisan config:cache
-                            php artisan route:cache
-
-                            docker-compose down
-                            docker-compose up -d --build
-
-                            echo "Laravel deployed and running at http://$PROD_HOST"
-                            echo "===== DEPLOY END: \$(date) ====="
-                        } >> deploy.log 2>&1
-
-                        # Tampilkan isi log terakhir di console
-                        tail -n 20 deploy.log
-                    '
-                    """
-                }
+                sh 'echo "Deploy berjalan..."'
             }
         }
-
     }
 }
