@@ -13,7 +13,17 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh '/usr/local/bin/deploy-laravel.sh'
+                sh '''
+                cd /var/www/laravel-devops
+                git pull origin main
+                composer install --no-dev --optimize-autoloader --no-interaction
+                php artisan migrate --force
+                php artisan config:clear
+                php artisan cache:clear
+                php artisan view:clear
+                chown -R www-data:www-data storage bootstrap/cache
+                chmod -R 775 storage bootstrap/cache
+                '''
             }
         }
     }
