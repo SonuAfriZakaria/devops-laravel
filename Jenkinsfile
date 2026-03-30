@@ -2,26 +2,11 @@ pipeline {
     agent any
 
     stages {
-        stage('Install Dependencies') {
+        stage('Deploy to VPS') {
             steps {
                 sh '''
-                echo "Mulai install dependency..."
-                '''
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh '''
-                echo "Testing berjalan..."
-                '''
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh '''
-                echo "Deploy berjalan..."
+                rm -rf /var/www/laravel-devops/*
+                cp -r ./* /var/www/laravel-devops/
                 '''
             }
         }
